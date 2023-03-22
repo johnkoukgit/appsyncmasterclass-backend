@@ -6,12 +6,15 @@ const ulid = require('ulid')
 const { getTweetById } = require('../lib/tweets')
 
 module.exports.handler = async (event) => {
+  console.log("###notify function###")
+  console.log("###notify function event " + event)
   for (const record of event.Records) {
     if (record.eventName === 'INSERT') {
       const tweet = DynamoDB.Converter.unmarshall(record.dynamodb.NewImage)
       console.log("!!debugging insert tweet from stream " + tweet)
       switch (tweet.__typename) {
         case TweetTypes.RETWEET:
+          console.log("!!debugging before notifyRetweet" + TweetTypes.RETWEET)
           await notifyRetweet(tweet)
           break
       }
@@ -23,6 +26,7 @@ async function notifyRetweet(tweet) {
   console.log("!!debugging notifyRetweet ")
   const retweetOf = await getTweetById(tweet.retweetOf)
   console.log("!!debugging notifyRetweet retweetOf " + retweetOf)
+  
   await mutate(graphql `mutation notifyRetweeted(
     $id: ID!
     $userId: ID!
