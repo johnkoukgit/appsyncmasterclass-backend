@@ -543,3 +543,6 @@ resources:
 
     WebCognitoUserPoolClientId:
       Value: !Ref WebUserPoolClient
+
+    ApiUrl:
+      Value: !GetAtt AppsyncmasterclassGraphQlApi.GraphQLUrl
