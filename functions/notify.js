@@ -1,32 +1,35 @@
+const _ = require('lodash')
 const DynamoDB = require('aws-sdk/clients/dynamodb')
 const { TweetTypes } = require('../lib/constants')
 const graphql = require('graphql-tag')
 const { mutate } = require('../lib/graphql')
 const ulid = require('ulid')
-const { getTweetById } = require('../lib/tweets')
+const { getTweetById, extractMentions } = require('../lib/tweets')
+const { getUserByScreenName } = require('../lib/users')
 
 module.exports.handler = async (event) => {
-  console.log("###notify function###")
-  console.log("###notify function event " + event)
   for (const record of event.Records) {
     if (record.eventName === 'INSERT') {
       const tweet = DynamoDB.Converter.unmarshall(record.dynamodb.NewImage)
-      console.log("!!debugging insert tweet from stream " + tweet)
+      
       switch (tweet.__typename) {
         case TweetTypes.RETWEET:
-          console.log("!!debugging before notifyRetweet" + TweetTypes.RETWEET)
           await notifyRetweet(tweet)
           break
+      }
+
+      if (tweet.text) {
+        const mentions = extractMentions(tweet.text)
+        if (!_.isEmpty(mentions)) {
+          await notifyMentioned(mentions, tweet)
+        }
       }
     }
   }
 }
 
 async function notifyRetweet(tweet) {
-  console.log("!!debugging notifyRetweet ")
   const retweetOf = await getTweetById(tweet.retweetOf)
-  console.log("!!debugging notifyRetweet retweetOf " + retweetOf)
-  
   await mutate(graphql `mutation notifyRetweeted(
     $id: ID!
     $userId: ID!
@@ -59,4 +62,44 @@ async function notifyRetweet(tweet) {
     retweetId: tweet.id,
     retweetedBy: tweet.creator
   })
+}
+
+async function notifyMentioned(screenNames, tweet) {
+  const promises = screenNames.map(async (screenName) => {
+    const user = await getUserByScreenName(screenName.replace('@', ''))
+    if (!user) {
+      return
+    }
+
+    await mutate(graphql `mutation notifyMentioned(
+      $id: ID!
+      $userId: ID!
+      $mentionedBy: ID!
+      $mentionedByTweetId: ID!
+    ) {
+      notifyMentioned(
+        id: $id
+        userId: $userId
+        mentionedBy: $mentionedBy
+        mentionedByTweetId: $mentionedByTweetId
+      ) {
+        __typename
+        ... on Mentioned {
+          id
+          type
+          userId
+          mentionedBy
+          mentionedByTweetId
+          createdAt
+        }
+      }
+    }`, {
+      id: ulid.ulid(),
+      userId: user.id,
+      mentionedBy: tweet.creator,
+      mentionedByTweetId: tweet.id
+    })
+  })
+  
+  await Promise.all(promises)
 }

@@ -12,7 +12,7 @@ mappingTemplates:
   - type: Subscription
     field: onNotified
     dataSource: none
-    
+
   - type: Query
     field: getMyProfile
     dataSource: usersTable
@@ -97,6 +97,12 @@ mappingTemplates:
     dataSource: unfollowMutation
   - type: Mutation
     field: notifyRetweeted
+    dataSource: notificationsTable
+  - type: Mutation
+    field: notifyLiked
+    dataSource: notificationsTable
+  - type: Mutation
+    field: notifyMentioned
     dataSource: notificationsTable
 
   # NESTED FIELDS
