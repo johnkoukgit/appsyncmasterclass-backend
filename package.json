@@ -5,24 +5,23 @@
   "main": "index.js",
   "scripts": {
     "sls": "sls",
-    "deploy": "sls -- deploy",
-    "export:env": "sls export-env",
-    "export:env-stage": "sls export-env -s stage",
-    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|json|css|md|mdx|html)\"",
-    "lint": "eslint . --cache-location node_modules/.cache/eslint",
-    "test": "jest"
+    "exportEnv": "sls export-env && sls manifest",
+    "jest": "jest",
+    "test": "jest --verbose ./__tests__/test_cases/unit --silent",
+    "integration-test": "jest --verbose ./__tests__/test_cases/integration --silent",
+    "e2e-test": "jest --verbose ./__tests__/test_cases/e2e --silent"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/muratkeremozcan/appsyncmasterclass-backend.git"
+    "url": "git+https://github.com/johnkoukgit/appsyncmasterclass-backend.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/muratkeremozcan/appsyncmasterclass-backend/issues"
+    "url": "https://github.com/johnkoukgit/appsyncmasterclass-backend/issues"
   },
-  "homepage": "https://github.com/muratkeremozcan/appsyncmasterclass-backend#readme",
+  "homepage": "https://github.com/johnkoukgit/appsyncmasterclass-backend#readme",
   "devDependencies": {
     "@types/jest": "29.2.5",
     "amplify-appsync-simulator": "1.23.8",
