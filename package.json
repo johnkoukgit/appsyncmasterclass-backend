@@ -38,6 +38,7 @@
     "serverless-manifest-plugin": "^1.0.6"
   },
   "dependencies": {
+    "@aws-sdk/signature-v4-crt": "^3.296.0",
     "@middy/core": "^1.5.2",
     "@middy/ssm": "^1.5.2",
     "algoliasearch": "^4.8.5",
