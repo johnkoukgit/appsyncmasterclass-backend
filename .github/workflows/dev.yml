@@ -24,8 +24,8 @@ jobs:
       with:
         node-version: '16'
 
-    - name: npm ci
-      run: npm ci --force
+    - name: npm install
+      run: npm install
 
     - name: unit tests
       run: |
