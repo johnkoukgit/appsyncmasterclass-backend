@@ -47,6 +47,7 @@
     "aws-crt": "^1.15.13",
     "bufferutil": "^4.0.7",
     "chance": "^1.1.7",
+    "encoding": "^0.1.13",
     "graphql": "^15.5.0",
     "graphql-tag": "^2.11.0",
     "isomorphic-fetch": "^3.0.0",
