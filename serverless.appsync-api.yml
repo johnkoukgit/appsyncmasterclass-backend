@@ -7,6 +7,11 @@ userPoolConfig:
   userPoolId: !Ref CognitoUserPool
 additionalAuthenticationProviders:
   - authenticationType: AWS_IAM
+  - authenticationType: API_KEY	
+apiKeys:
+  - name: Default # name of the api key
+    description: 'Default api key'
+    expiresAfter: 30d 
 mappingTemplatesLocation: mapping-templates
 mappingTemplates:
   - type: Subscription
@@ -59,6 +64,12 @@ mappingTemplates:
     dataSource: getHashTagFunction
     request: false
     response: false
+  - type: Query
+    field: listConversations
+    dataSource: conversationsTable
+  - type: Query
+    field: getDirectMessages
+    dataSource: directMessagesTable
 
   - type: Mutation
     field: editMyProfile
@@ -102,11 +113,19 @@ mappingTemplates:
     field: notifyLiked
     dataSource: notificationsTable
   - type: Mutation
+    field: notifyDMed
+    dataSource: notificationsTable
+  - type: Mutation
     field: notifyMentioned
     dataSource: notificationsTable
   - type: Mutation
     field: notifyReplied
     dataSource: notificationsTable
+  - type: Mutation
+    field: sendDirectMessage
+    dataSource: sendDirectMessageFunction
+    request: false
+    response: false
 
   # NESTED FIELDS
   - type: Tweet
@@ -164,6 +183,12 @@ mappingTemplates:
   - type: OtherProfile
     field: followedBy
     dataSource: relationshipsTable
+  - type: Conversation
+    field: otherUser
+    dataSource: usersTable
+  - type: Message
+    field: from
+    dataSource: usersTable
 
 functionConfigurations:
   - name: getFollowers
@@ -206,6 +231,14 @@ dataSources:
     name: notificationsTable
     config:
       tableName: !Ref NotificationsTable
+  - type: AMAZON_DYNAMODB
+    name: conversationsTable
+    config:
+      tableName: !Ref ConversationsTable
+  - type: AMAZON_DYNAMODB
+    name: directMessagesTable
+    config:
+      tableName: !Ref DirectMessagesTable
   - type: AMAZON_DYNAMODB
     name: likeMutation
     config:
@@ -282,6 +315,10 @@ dataSources:
     name: getHashTagFunction
     config:
       functionName: getHashTag
+  - type: AWS_LAMBDA
+    name: sendDirectMessageFunction
+    config:
+      functionName: sendDirectMessage
 
 substitutions:
   TweetsTable: !Ref TweetsTable

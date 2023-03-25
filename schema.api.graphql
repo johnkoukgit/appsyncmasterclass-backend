@@ -34,6 +34,17 @@ type Query {
     limit: Int!
     nextToken: String
   ): HashTagResultsPage!
+
+  listConversations(
+    limit: Int!
+    nextToken: String
+  ): ConversationsPage!
+
+  getDirectMessages(
+    otherUserId: ID!
+    limit: Int!
+    nextToken: String
+  ): MessagesPage!
 }
 
 type Mutation {
@@ -88,11 +99,24 @@ type Mutation {
     repliedBy: ID!
   ): Notification!
   @aws_iam
+
+  notifyDMed(
+    id: ID!
+    userId: ID!
+    otherUserId: ID!
+    message: String!
+  ): Notification!
+  @aws_iam
+
+  sendDirectMessage(
+    otherUserId: ID!
+    message: String!
+  ): Conversation!
 }
 
 type Subscription {
   onNotified(userId: ID!, type: NotificationType): Notification
-  @aws_subscribe(mutations: ["notifyRetweeted", "notifyLiked", "notifyMentioned", "notifyReplied"])
+  @aws_subscribe(mutations: ["notifyRetweeted", "notifyLiked", "notifyMentioned", "notifyReplied", "notifyDMed"])
 }
 
 enum SearchMode {
@@ -283,7 +307,16 @@ type Replied implements iNotification @aws_iam @aws_cognito_user_pools {
   createdAt: AWSDateTime!
 }
 
-union Notification @aws_iam @aws_cognito_user_pools = Retweeted | Liked | Mentioned | Replied
+type DMed implements iNotification @aws_iam @aws_cognito_user_pools {
+  id: ID!
+  type: NotificationType!
+  userId: ID!
+  createdAt: AWSDateTime!
+  otherUserId: ID!
+  message: String!
+}
+
+union Notification @aws_iam @aws_cognito_user_pools = Retweeted | Liked | Mentioned | Replied | DMed
 
 interface iNotification @aws_iam @aws_cognito_user_pools {
   id: ID!
@@ -297,4 +330,29 @@ enum NotificationType {
   Liked
   Mentioned
   Replied
+  DMed
+}
+
+type Conversation {
+  id: ID!
+  otherUser: OtherProfile!
+  lastMessage: String!
+  lastModified: AWSDateTime!
+}
+
+type ConversationsPage {
+  conversations: [Conversation!]
+  nextToken: String
+}
+
+type Message {
+  messageId: ID!
+  from: IProfile!
+  message: String!
+  timestamp: AWSDateTime!
+}
+
+type MessagesPage {
+  messages: [Message!]
+  nextToken: String
 }
