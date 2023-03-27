@@ -24,6 +24,12 @@ custom:
   stage: ${opt:stage, self:provider.stage}
   appSync:
     - ${file(serverless.appsync-api.yml)}
+  appSyncCaching:
+    default:
+    prod:
+      behavior: PER_RESOLVER_CACHING
+      ttl: 3600
+      type: T2_SMALL
 
 functions:
   confirmUserSignup:
@@ -283,6 +289,15 @@ functions:
       - Effect: Allow
         Action: dynamodb:UpdateItem
         Resource: !GetAtt ConversationsTable.Arn
+
+  getTweetCreator:
+    handler: functions/get-tweet-creator.handler
+    environment:
+      USERS_TABLE: !Ref UsersTable
+    iamRoleStatements:
+      - Effect: Allow
+        Action: dynamodb:BatchGetItem
+        Resource: !GetAtt UsersTable.Arn
 
 resources:
   Resources:
