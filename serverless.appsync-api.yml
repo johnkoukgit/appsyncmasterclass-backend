@@ -20,6 +20,9 @@ mappingTemplates:
     dataSource: none
 
   - type: Query
+    field: getAnalyticsConfig
+    dataSource: none
+  - type: Query
     field: getMyProfile
     dataSource: usersTable
   - type: Query
@@ -356,3 +359,5 @@ substitutions:
   LikesTable: !Ref LikesTable
   UsersTable: !Ref UsersTable
   RelationshipsTable: !Ref RelationshipsTable
+  FirehoseStreamName: !Ref FirehoseStream
+  IdentityPoolId: !Ref IdentityPool
