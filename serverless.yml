@@ -5,7 +5,6 @@ plugins:
   - serverless-appsync-plugin
   - serverless-iam-roles-per-function
   - serverless-export-env
-  - serverless-plugin-ifelse
 
 provider:
   name: aws
@@ -36,12 +35,6 @@ custom:
       behavior: PER_RESOLVER_CACHING
       ttl: 3600
       type: T2_SMALL
-
-  serverlessIfElse:
-    - If: '"${self:custom.stage}" == "dev"'
-      ElseExclude:
-        - functions.setResolverLogLevelToAll
-        - functions.setResolverLogLevelToError
 
 functions:
   confirmUserSignup:
